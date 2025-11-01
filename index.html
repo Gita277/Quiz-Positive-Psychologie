@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Positive Psychologie Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
+  <!-- Safelist für Tailwind-JIT -->
+  <template id="tailwind-safelist">
+    <span class="text-green-600 text-red-600 bg-green-100 bg-red-100 border-green-500 border-red-500"></span>
+  </template>
+
+  <div id="app"></div>
+
+  <script>
+    "use strict";
+
+    /* ---------- Icons ---------- */
+    const Icons = {
+      Heart: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`,
+      Zap: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
+      Brain: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>`,
+      TrendingUp: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>`,
+      CheckCircle: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+      XCircle: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+    };
+
+    /* ---------- State ---------- */
+    let state = {
+      started: false,
+      currentQuestion: 0,
+      selectedAnswer: null,
+      showExplanation: false,
+      scores: { broaden: 0, flow: 0, growth: 0, perma: 0 },
+      quizComplete: false
+    };
+
+    /* ---------- Fragen (16) ---------- */
+    const questions = [
+      /* --- Broaden & Build (4) --- */
+      { id:1, category:"broaden", icon:"Heart", question:"Du hast gerade eine gute Note bekommen und fühlst dich super. Was passiert wahrscheinlich als nächstes?", options:[
+        { text:"Ich konzentriere mich nur auf die nächste Prüfung", correct:false, explanation:"Das wäre Tunnelblick! Positive Emotionen öffnen deinen Blick." },
+        { text:"Ich sehe plötzlich neue Möglichkeiten und habe Lust, Dinge auszuprobieren", correct:true, explanation:"Genau! Das ist die Broaden-and-Build-Theorie – positive Emotionen erweitern die Wahrnehmung und fördern Explorationsverhalten." },
+        { text:"Ich warte darauf, dass das Gefühl wieder verfliegt", correct:false, explanation:"Positive Emotionen sind wie eine Aufwärtsspirale – nutze sie aktiv." }
+      ]},
+      { id:2, category:"broaden", icon:"Heart", question:"Wenn du gestresst und ängstlich bist, wie denkst du dann meistens?", options:[
+        { text:"Ich sehe nur noch Probleme, alles wirkt schwarz-weiß", correct:true, explanation:"Richtig! Negative Emotionen verengen den Fokus (Fight/Flight)." },
+        { text:"Ich sehe viele kreative Lösungswege", correct:false, explanation:"Bei Stress untypisch." },
+        { text:"Stress ändert nichts an meinem Denken", correct:false, explanation:"Emotionen beeinflussen stark, wie wir denken." }
+      ]},
+      { id:3, category:"broaden", icon:"Heart", question:"Was baut sich laut der Broaden-and-Build-Theorie langfristig auf, wenn du positive Emotionen erlebst?", options:[
+        { text:"Nur gute Laune für den Moment", correct:false, explanation:"Zu kurz gedacht." },
+        { text:"Ressourcen wie Freundschaften, Wissen, Optimismus und Kreativität", correct:true, explanation:"Exakt. Positive Emotionen helfen, tragfähige Ressourcen aufzubauen." },
+        { text:"Abhängigkeit von guten Gefühlen", correct:false, explanation:"Nein – Ziel ist Resilienz, nicht Abhängigkeit." }
+      ]},
+      { id:4, category:"broaden", icon:"Heart", question:"Warum ist die Broaden-and-Build-Theorie wichtig für demokratische Prozesse?", options:[
+        { text:"Ist sie nicht – das ist nur persönliche Psychologie", correct:false, explanation:"Doch! Emotionen prägen auch gesellschaftliches Verhalten." },
+        { text:"Menschen mit positiven Emotionen sind offener, dialogbereiter und sehen mehr Perspektiven", correct:true, explanation:"Geweiteter Blick erleichtert konstruktiven Diskurs und Kompromisse." },
+        { text:"Glückliche Menschen wählen automatisch bessere Politiker", correct:false, explanation:"So simpel ist Demokratie nicht." }
+      ]},
+
+      /* --- Flow (4) --- */
+      { id:5, category:"flow", icon:"Zap", question:"Beim Gaming merkst du plötzlich: 2 Stunden sind vorbei – was beschreibt das am besten?", options:[
+        { text:"Verschwendete Zeit – ich hätte lernen sollen", correct:false, explanation:"Das ist eine Bewertung, keine psychologische Beschreibung." },
+        { text:"Flow – totales Aufgehen in einer Tätigkeit", correct:true, explanation:"Zeitverzerrung und tiefe Fokussierung sind Flow-Merkmale." },
+        { text:"Einfach nur Ablenkung vom Alltag", correct:false, explanation:"Flow ist hochwertige Aufmerksamkeit, nicht bloße Ablenkung." }
+      ]},
+      { id:6, category:"flow", icon:"Zap", question:"Wann erlebst du am ehesten Flow?", options:[
+        { text:"Bei einer viel zu leichten Aufgabe", correct:false, explanation:"Zu leicht → Langeweile." },
+        { text:"Bei einer Aufgabe, die dich passend herausfordert und klare Ziele bietet", correct:true, explanation:"Passung Fähigkeit/Anforderung + klares Feedback → Flow." },
+        { text:"Bei einer Aufgabe, die viel zu schwer ist", correct:false, explanation:"Zu schwer → Überforderung/Stress." }
+      ]},
+      { id:7, category:"flow", icon:"Zap", question:"Was sind typische Merkmale von Flow?", options:[
+        { text:"Ständige Ablenkung", correct:false, explanation:"Im Gegenteil – tiefer Fokus." },
+        { text:"Zeitgefühl verschwindet, klares Ziel, unmittelbares Feedback", correct:true, explanation:"Klassische Flow-Kennzeichen (Csíkszentmihályi)." },
+        { text:"Entspannung und passive Erholung", correct:false, explanation:"Flow ist aktiv und fordernd – nicht passiv." }
+      ]},
+      { id:8, category:"flow", icon:"Zap", question:"Wie kannst du Flow gezielt herbeiführen?", options:[
+        { text:"Einfach warten, bis es passiert", correct:false, explanation:"Flow entsteht selten zufällig." },
+        { text:"Multitasking betreiben", correct:false, explanation:"Multitasking verhindert Flow – eine Sache zur Zeit!" },
+        { text:"Klares Ziel, Ablenkungen aus, passende Herausforderung wählen", correct:true, explanation:"So erhöhst du die Flow-Wahrscheinlichkeit." }
+      ]},
+
+      /* --- Growth Mindset (4) --- */
+      { id:9, category:"growth", icon:"Brain", question:"Du bekommst eine schlechte Note in Mathe – was ist eine Growth-Mindset-Reaktion?", options:[
+        { text:"Ich bin halt nicht gut in Mathe", correct:false, explanation:"Fixed Mindset." },
+        { text:"Ich kann das NOCH nicht – ich übe gezielt und lerne Strategien", correct:true, explanation:"Fokus auf Lernpfad und Prozess." },
+        { text:"Andere haben einfach mehr Talent", correct:false, explanation:"Wieder Fixed Mindset." }
+      ]},
+      { id:10, category:"growth", icon:"Brain", question:"Was sagt die Neurowissenschaft über dein Gehirn?", options:[
+        { text:"Mit 20 ist das Gehirn fertig, danach ändert sich nichts", correct:false, explanation:"Veraltet – Neuroplastizität bleibt erhalten." },
+        { text:"Gehirn wie Muskel – Training stärkt Verbindungen", correct:true, explanation:"Übung formt neuronale Netzwerke." },
+        { text:"Intelligenz ist zu 95% genetisch und fix", correct:false, explanation:"Zu vereinfachend und empirisch nicht haltbar." }
+      ]},
+      { id:11, category:"growth", icon:"Brain", question:"Wie reagiert jemand mit Growth Mindset auf konstruktive Kritik?", options:[
+        { text:"Nimmt sie persönlich und zieht sich zurück", correct:false, explanation:"Blockiert Entwicklung." },
+        { text:"Ignoriert Kritik komplett", correct:false, explanation:"Feedback ist Lernchance." },
+        { text:"Sieht Kritik als Feedback zum Lernen", correct:true, explanation:"Fokus auf Verbesserung." }
+      ]},
+      { id:12, category:"growth", icon:"Brain", question:"Warum ist Growth Mindset gesellschaftlich relevant?", options:[
+        { text:"Ist es nicht – nur privat wichtig", correct:false, explanation:"Mindsets prägen Lern- und Fehlerkulturen." },
+        { text:"Glauben an Veränderbarkeit fördert Lernfreude, Innovation und Teilhabe", correct:true, explanation:"Relevant für Bildung, Arbeit, Demokratie." },
+        { text:"Menschen mit Growth Mindset sind immer erfolgreicher", correct:false, explanation:"Kein Automatismus – verbessert aber Chancen." }
+      ]},
+
+      /* --- PERMA+H (4) --- */
+      { id:13, category:"perma", icon:"TrendingUp", question:"Was macht laut Positiver Psychologie ein gutes Leben aus?", options:[
+        { text:"Nur positive Emotionen", correct:false, explanation:"E ist nur ein Teil." },
+        { text:"Balance aus E, Engagement, Beziehungen, Sinn, Erfolg, Gesundheit", correct:true, explanation:"PERMA+H – die 6 Säulen des Wohlbefindens." },
+        { text:"Möglichst viel Geld", correct:false, explanation:"Zu einseitig." }
+      ]},
+      { id:14, category:"perma", icon:"TrendingUp", question:"Was unterscheidet Positive Psychologie von traditioneller Psychologie?", options:[
+        { text:"Sie ignoriert Probleme und Störungen", correct:false, explanation:"Nein – Ergänzung um Stärken- & Wachstumsfokus." },
+        { text:"Fragt auch: Was lässt Menschen aufblühen?", correct:true, explanation:"Es geht um mehr als Defizite." },
+        { text:"Sie ist unwissenschaftlich", correct:false, explanation:"Falsch – eigener Forschungszweig." }
+      ]},
+      { id:15, category:"perma", icon:"TrendingUp", question:"Warum ist das 'H' in PERMA+H wichtig?", options:[
+        { text:"Körper und Geist beeinflussen sich – Gesundheit zählt mit", correct:true, explanation:"Bewegung, Schlaf & Ernährung stützen Wohlbefinden." },
+        { text:"Ohne perfekte Gesundheit kein Glück", correct:false, explanation:"Zu absolut – es geht um Förderung, nicht Perfektion." },
+        { text:"Gesundheit ist wichtiger als alles andere", correct:false, explanation:"Balance ist das Ziel." }
+      ]},
+      { id:16, category:"perma", icon:"TrendingUp", question:"Menschen mit hohem PERMA-Wohlbefinden sind …", options:[
+        { text:"Immun gegen Stress", correct:false, explanation:"Niemand ist völlig immun." },
+        { text:"Widerstandsfähiger, kreativer und sozial verbundener", correct:true, explanation:"Studien zeigen u. a. bessere Resilienz und Beziehungen." },
+        { text:"Realitätsfern", correct:false, explanation:"Oft realistischer-konstruktiv." }
+      ]}
+    ];
+
+    /* ---------- Helper ---------- */
+    const catName = { broaden:"Broaden & Build", flow:"Flow", growth:"Growth Mindset", perma:"PERMA+H" };
+    const catDesc = {
+      broaden:"Positive Emotionen erweitern deinen Blick",
+      flow:"Totales Aufgehen in einer Tätigkeit",
+      growth:"Dein Gehirn kann wachsen",
+      perma:"Die 6 Säulen des Wohlbefindens"
+    };
+
+    function personalizedFeedback() {
+      const total = Object.values(state.scores).reduce((a,b)=>a+b,0);
+      const pct = Math.round((total / questions.length) * 100);
+      let msg = pct>=80 ? "Wow! 🌟 Du hast die Positive Psychologie richtig gut verstanden! "
+              : pct>=60 ? "Gut gemacht! 👏 Du kennst dich schon gut aus. "
+              : pct>=40 ? "Das war ein guter Start! 💪 "
+              : "Super, dass du mitgemacht hast! 🎯 ";
+
+      const cats = Object.entries(state.scores).map(([c,s])=>{
+        const max = questions.filter(q=>q.category===c).length;
+        return {c, s, max, p:(s/max)*100};
+      });
+      const strongest = cats.reduce((a,b)=>a.p>b.p?a:b);
+      const weakest = cats.reduce((a,b)=>a.p<b.p?a:b);
+      if (strongest.p>0) msg += `Stark bei: ${catName[strongest.c]}. `;
+      if (weakest.p < strongest.p && weakest.p < 75) msg += `Bei ${catName[weakest.c]} kannst du noch nachschärfen.`;
+      return msg;
+    }
+
+    /* ---------- Screens ---------- */
+    function viewStart() {
+      return `
+        <div class="min-h-screen flex flex-col items-center justify-center text-center p-8">
+          <h1 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800">Positive Psychologie Quiz</h1>
+          <p class="text-gray-600 mb-8">Teste dein Wissen über Broaden & Build, Flow, Growth Mindset und PERMA+H.</p>
+          <button data-action="start" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 shadow-lg">
+            Jetzt starten
+          </button>
+        </div>
+      `;
+    }
+
+    function viewQuestion() {
+      const q = questions[state.currentQuestion];
+      const progress = ((state.currentQuestion + 1) / questions.length) * 100;
+
+      const optionsHtml = q.options.map((opt, i) => {
+        const isSelected = state.selectedAnswer === i;
+        const isCorrect = opt.correct;
+        const showResult = state.showExplanation && isSelected;
+
+        let cls = 'w-full p-5 rounded-xl text-left transition-all duration-300 font-medium text-lg ';
+        if (!state.showExplanation) {
+          cls += (isSelected ? 'bg-purple-100 border-2 border-purple-400 ' : 'bg-gray-50 border-2 border-gray-200 hover:border-purple-300 hover:shadow-md ') + 'cursor-pointer';
+        } else {
+          cls += 'cursor-not-allowed ';
+          if (showResult && isCorrect) cls += 'bg-green-100 border-2 border-green-500';
+          else if (showResult && !isCorrect) cls += 'bg-red-100 border-2 border-red-500';
+          else cls += 'bg-gray-50 border-2 border-gray-200';
+        }
+
+        const icon = showResult
+          ? `<div class="ml-4 ${isCorrect ? 'text-green-600' : 'text-red-600'}">${isCorrect ? Icons.CheckCircle : Icons.XCircle}</div>`
+          : '';
+
+        return `
+          <button class="${cls}" data-action="answer" data-index="${i}" ${state.showExplanation ? 'disabled' : ''}>
+            <div class="flex items-center justify-between">
+              <span class="flex-1">${opt.text}</span>
+              ${icon}
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      const explanationHtml = state.showExplanation ? `
+        <div class="p-6 rounded-xl mb-6 animate-fade-in ${q.options[state.selectedAnswer].correct ? 'bg-green-50 border-2 border-green-200' : 'bg-blue-50 border-2 border-blue-200'}">
+          <h3 class="font-bold text-lg mb-2 text-gray-800">
+            ${q.options[state.selectedAnswer].correct ? '✅ Richtig!' : '💡 Gut zu wissen:'}
+          </h3>
+          <p class="text-gray-700 leading-relaxed">${q.options[state.selectedAnswer].explanation}</p>
+        </div>
+        <button data-action="next" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 shadow-lg">
+          ${state.currentQuestion < questions.length - 1 ? 'Nächste Frage →' : 'Ergebnis anzeigen 🎉'}
+        </button>
+      ` : '';
+
+      return `
+        <div class="min-h-screen p-4 md:p-8">
+          <div class="max-w-3xl mx-auto">
+            <div class="mb-6">
+              <div class="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Frage ${state.currentQuestion + 1} von ${questions.length}</span>
+                <span>${Math.round(progress)}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all duration-300" style="width:${progress}%"></div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10">
+              <div class="flex items-center justify-center mb-6">
+                <div class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2 rounded-full flex items-center gap-2">
+                  ${Icons[q.icon]}
+                  <span class="font-semibold">${catName[q.category]}</span>
+                </div>
+              </div>
+
+              <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center leading-relaxed">${q.question}</h2>
+
+              <div class="space-y-4 mb-8">
+                ${optionsHtml}
+              </div>
+
+              ${explanationHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function viewResults() {
+      const total = Object.values(state.scores).reduce((a,b)=>a+b,0);
+      const pct = Math.round((total / questions.length) * 100);
+
+      const dist = Object.entries(state.scores).map(([category, score])=>{
+        const max = questions.filter(q=>q.category===category).length;
+        const p = max>0 ? (score/max)*100 : 0;
+        return `
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <div>
+                <span class="font-medium text-gray-700">${catName[category]}</span>
+                <p class="text-xs text-gray-500">${catDesc[category]}</p>
+              </div>
+              <span class="text-gray-600">${score}/${max}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" style="width:${p}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="min-h-screen p-8">
+          <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+              <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Quiz geschafft!</h2>
+                <div class="text-6xl font-bold text-purple-600 mb-4">${pct}%</div>
+                <p class="text-xl text-gray-600">${total} von ${questions.length} Fragen richtig</p>
+              </div>
+
+              <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl p-6 mb-8">
+                <p class="text-lg text-gray-700 leading-relaxed">${personalizedFeedback()}</p>
+              </div>
+
+              <div class="space-y-4 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Deine Punkteverteilung:</h3>
+                ${dist}
+              </div>
+
+              <button data-action="reset" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 shadow-lg">
+                Nochmal probieren
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------- Render ---------- */
+    function render() {
+      const root = document.getElementById('app');
+      if (!state.started) {
+        root.innerHTML = viewStart();
+      } else if (state.quizComplete) {
+        root.innerHTML = viewResults();
+      } else {
+        root.innerHTML = viewQuestion();
+      }
+      // sanft scrollen, wenn Erklärung sichtbar
+      if (state.showExplanation) {
+        const el = root.querySelector('.animate-fade-in');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    /* ---------- Event Delegation (ein Listener für alles) ---------- */
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+
+      const action = btn.getAttribute('data-action');
+
+      if (action === 'start') {
+        state.started = true;
+        render();
+        return;
+      }
+
+      if (action === 'answer' && !state.showExplanation) {
+        const idx = Number(btn.getAttribute('data-index'));
+        state.selectedAnswer = idx;
+        state.showExplanation = true;
+        const q = questions[state.currentQuestion];
+        if (q.options[idx].correct) {
+          state.scores[q.category]++;
+        }
+        render();
+        return;
+      }
+
+      if (action === 'next') {
+        if (state.currentQuestion < questions.length - 1) {
+          state.currentQuestion++;
+          state.selectedAnswer = null;
+          state.showExplanation = false;
+        } else {
+          state.quizComplete = true;
+        }
+        render();
+        return;
+      }
+
+      if (action === 'reset') {
+        state = { started:false, currentQuestion:0, selectedAnswer:null, showExplanation:false, scores:{broaden:0,flow:0,growth:0,perma:0}, quizComplete:false };
+        render();
+        return;
+      }
+    });
+
+    /* ---------- Start ---------- */
+    window.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>
