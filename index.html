@@ -11,6 +11,7 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
+  <!-- Safelist für Tailwind-JIT (für Zustandsklassen) -->
   <template id="tailwind-safelist">
     <span class="text-green-600 text-red-600 bg-green-100 bg-red-100 border-green-500 border-red-500"></span>
   </template>
@@ -41,11 +42,11 @@
       quizComplete: false
     };
 
-    /* ---------- Fragen (20) – Grunddaten (unverändert) ---------- */
+    /* ---------- Fragen (20) – deine überarbeitete Fassung ---------- */
     const baseQuestions = [
-      /* Broaden & Build (4) */
+      /* 🌈 Broaden & Build (1–4) */
       { id: 1, category: "broaden", icon: "Heart",
-        question: "Du bist gut gelaunt, weil dir jemand ein Kompliment gemacht hat. Was passiert oft, wenn du dich so fühlst?",
+        question: "Du bist gut gelaunt, weil dir jemand ein Kompliment gemacht hat. Was passiert, wenn du dich so fühlst?",
         options: [
           { text: "Du bleibst ganz bei dir und blendest andere aus", correct: false, explanation: "Positive Emotionen öffnen – nicht verengen – deinen Blick." },
           { text: "Du bist offener und siehst neue Möglichkeiten", correct: true, explanation: "Broaden & Build: Positive Emotionen erweitern Wahrnehmung und Handlungsspielräume." },
@@ -56,8 +57,8 @@
         question: "Du bist gestresst vor einer Prüfung. Was hilft dir, den Tunnelblick zu öffnen?",
         options: [
           { text: "Musik hören, tief atmen oder kurz lachen", correct: true, explanation: "Mikro-Momente positiver Emotionen regulieren Stress und weiten den Blick." },
-          { text: "Noch mehr Stoff in noch weniger Zeit durchlesen", correct: false, explanation: "Das verstärkt oft den Tunnelblick und die Überforderung." },
-          { text: "Alles verdrängen und hoffen, es klappt", correct: false, explanation: "Verdrängen senkt kurzfristig Druck, löst aber das Problem nicht." }
+          { text: "Noch mehr Stoff in noch kürzerer Zeit durchlesen", correct: false, explanation: "Das verstärkt oft den Tunnelblick und die Überforderung." },
+          { text: "Alles verdrängen und hoffen, dass es klappt", correct: false, explanation: "Verdrängen senkt kurzfristig Druck, löst aber das Problem nicht." }
         ]
       },
       { id: 3, category: "broaden", icon: "Heart",
@@ -77,9 +78,9 @@
         ]
       },
 
-      /* Flow (4) – Frage 5 angepasst: Bewegung statt Gaming */
+      /* ⚡ Flow (5–8) */
       { id: 5, category: "flow", icon: "Zap",
-        question: "Du zeichnest, machst Musik oder bist in Bewegung (z. B. Sport, Tanzen) – plötzlich vergeht die Zeit wie im Flug. Was passiert da?",
+        question: "Du zeichnest, machst Musik oder bewegst dich (z. B. Sport, Tanzen) – dabei vergeht die Zeit wie im Flug. Was passiert da?",
         options: [
           { text: "Du bist abgelenkt", correct: false, explanation: "Ablenkung ist das Gegenteil: Flow ist hochfokussiert." },
           { text: "Du bist gestresst", correct: false, explanation: "Flow geht mit positiver Aktivierung, nicht mit Distress einher." },
@@ -90,8 +91,8 @@
         question: "Wann kommst du am ehesten in den Flow?",
         options: [
           { text: "Wenn die Aufgabe leicht und langweilig ist", correct: false, explanation: "Zu leicht → Langeweile, kein Flow." },
-          { text: "Wenn sie zu schwer ist", correct: false, explanation: "Zu schwer → Überforderung/Stress, kein Flow." },
-          { text: "Wenn sie fordernd, aber machbar ist", correct: true, explanation: "Bester Sweet Spot: Herausforderung ≈ Fähigkeit + klares Ziel + Feedback." }
+          { text: "Wenn die Aufgabe sehr schwierig ist", correct: false, explanation: "Zu schwer → Überforderung/Stress, kein Flow." },
+          { text: "Wenn die Aufgabe fordernd, aber machbar ist", correct: true, explanation: "Bester Sweet Spot: Herausforderung ≈ Fähigkeit + klares Ziel + Feedback." }
         ]
       },
       { id: 7, category: "flow", icon: "Zap",
@@ -105,26 +106,26 @@
       { id: 8, category: "flow", icon: "Zap",
         question: "Wie kannst du Flow fördern?",
         options: [
-          { text: "Durch klares Ziel, Ruhe und volle Konzentration", correct: true, explanation: "Ziele, Fokus und Störungsfreiheit steigern die Flow-Wahrscheinlichkeit." },
-          { text: "Durch Multitasking", correct: false, explanation: "Multitasking zerschießt Aufmerksamkeit und Flow." },
+          { text: "Durch ein klares Ziel, Ruhe und volle Konzentration", correct: true, explanation: "Ziele, Fokus und Störungsfreiheit steigern die Flow-Wahrscheinlichkeit." },
+          { text: "Durch Multitasking – viele Dinge nebeneinander machen", correct: false, explanation: "Multitasking zerschießt Aufmerksamkeit und Flow." },
           { text: "Durch häufige Ablenkungen", correct: false, explanation: "Kurze Pausen ja – aber häufige Ablenkungen verhindern Flow." }
         ]
       },
 
-      /* Growth Mindset (4) */
+      /* 🧠 Growth Mindset (9–12) */
       { id: 9, category: "growth", icon: "Brain",
         question: "Du bekommst eine schlechte Note. Was wäre eine Reaktion mit Growth Mindset?",
         options: [
-          { text: "„Ich kann das einfach nicht.“", correct: false, explanation: "Das ist Fixed Mindset – es blockiert Lernen." },
-          { text: "„Ich kann das noch nicht – ich übe weiter.“", correct: true, explanation: "„Noch“ öffnet den Lernweg und stärkt Motivation." },
-          { text: "„Das ist unfair!“", correct: false, explanation: "Kern ist nicht Schuldzuweisung, sondern Lernstrategie." }
+          { text: "Ich kann das einfach nicht", correct: false, explanation: "Das ist Fixed Mindset – es blockiert Lernen." },
+          { text: "Ich kann das noch nicht – ich übe weiter", correct: true, explanation: "„Noch“ öffnet den Lernweg und stärkt Motivation." },
+          { text: "Das ist so unfair", correct: false, explanation: "Kern ist nicht Schuldzuweisung, sondern Lernstrategie." }
         ]
       },
       { id: 10, category: "growth", icon: "Brain",
         question: "Warum hilft dir der Satz „Ich kann das noch nicht“?",
         options: [
-          { text: "Er öffnet die Möglichkeit, dich zu verbessern", correct: true, explanation: "Er fördert Anstrengungsbereitschaft und Ausdauer." },
-          { text: "Er klingt einfach netter", correct: false, explanation: "Er ist vor allem wirksam, nicht nur freundlich." },
+          { text: "Er eröffnet die Möglichkeit, dich zu verbessern", correct: true, explanation: "Er fördert Anstrengungsbereitschaft und Ausdauer." },
+          { text: "Er klingt einfach gut", correct: false, explanation: "Er ist vor allem wirksam, nicht nur freundlich." },
           { text: "Er macht dich automatisch klüger", correct: false, explanation: "Er motiviert – Lernen braucht weiterhin Übung." }
         ]
       },
@@ -140,46 +141,46 @@
         question: "Warum ist Growth Mindset wichtig für die Zukunft?",
         options: [
           { text: "Weil man dann immer perfekt ist", correct: false, explanation: "Perfektion ist illusorisch – es geht um Entwicklung." },
-          { text: "Weil du offener bleibst für Veränderung und neue Wege", correct: true, explanation: "Anpassungsfähigkeit ist zentral in einer dynamischen Welt." },
+          { text: "Weil du offen bleibst für Veränderungen und neue Wege", correct: true, explanation: "Anpassungsfähigkeit ist zentral in einer dynamischen Welt." },
           { text: "Weil du weniger lernen musst", correct: false, explanation: "Im Gegenteil – du lernst kontinuierlich." }
         ]
       },
 
-      /* PERMA+H (4) */
+      /* 💜 PERMA + H (13–16) */
       { id: 13, category: "perma", icon: "TrendingUp",
         question: "Was trägt am meisten zu echtem Wohlbefinden bei?",
         options: [
-          { text: "Nur Spaß haben", correct: false, explanation: "Spaß allein reicht nicht – zu kurz gedacht." },
+          { text: "Einfach nur Spaß haben", correct: false, explanation: "Spaß allein reicht nicht – zu kurz gedacht." },
           { text: "Spaß, Sinn, Beziehungen und Gesundheit", correct: true, explanation: "PERMA+H: Emotionen, Engagement, Beziehungen, Sinn, Leistung, Gesundheit." },
-          { text: "Immer gewinnen", correct: false, explanation: "Erfolg ist nur ein Baustein – Balance ist wichtig." }
+          { text: "Immer zu gewinnen", correct: false, explanation: "Erfolg ist nur ein Baustein – Balance ist wichtig." }
         ]
       },
       { id: 14, category: "perma", icon: "TrendingUp",
         question: "Warum sind Freundschaften wichtig für dein Wohlbefinden?",
         options: [
           { text: "Sie geben Halt, Freude und Vertrauen", correct: true, explanation: "Beziehungen (R) sind Kernquelle für Glück und Resilienz." },
-          { text: "Sie lenken vom Lernen ab", correct: false, explanation: "Gute Beziehungen können Lernen stützen." },
-          { text: "Sie sind nur bei Erfolg wichtig", correct: false, explanation: "Beziehungen tragen durch Erfolge und Krisen." }
+          { text: "Sie lenken dich vom Lernen ab", correct: false, explanation: "Gute Beziehungen können Lernen stützen." },
+          { text: "Sie sind nur wichtig, wenn es dir gut geht", correct: false, explanation: "Beziehungen tragen durch Erfolge und Krisen." }
         ]
       },
       { id: 15, category: "perma", icon: "TrendingUp",
         question: "Wie kannst du auch an schwierigen Tagen etwas für dein Wohlbefinden tun?",
         options: [
           { text: "Dankbarkeit üben oder kurz spazieren gehen", correct: true, explanation: "Kleine, konkrete Handlungen stärken Selbstfürsorge und Stimmung." },
-          { text: "Alles verdrängen", correct: false, explanation: "Verdrängen löst nichts – kleine Schritte helfen wirklich." },
-          { text: "Dich isolieren", correct: false, explanation: "Isolation senkt Wohlbefinden – Kontakt tut gut." }
+          { text: "Alles verdrängen und so tun, als ob nichts wäre", correct: false, explanation: "Verdrängen löst nichts – kleine Schritte helfen wirklich." },
+          { text: "Dich isolieren und die Probleme mit dir alleine ausmachen", correct: false, explanation: "Isolation senkt Wohlbefinden – Kontakt tut gut." }
         ]
       },
       { id: 16, category: "perma", icon: "TrendingUp",
         question: "Warum gehört auch Scheitern zum guten Leben?",
         options: [
           { text: "Weil du dadurch wachsen und lernen kannst", correct: true, explanation: "Reflektiertes Scheitern ist Lernmotor." },
-          { text: "Weil du Pech hast", correct: false, explanation: "Es geht nicht um Pech, sondern Lernchancen." },
-          { text: "Weil Glück langweilig wäre", correct: false, explanation: "Pointiert, aber nicht der Kern – es geht um Entwicklung." }
+          { text: "Weil Scheitern einfach Pech ist", correct: false, explanation: "Zu kurz gegriffen – es geht um Lernchancen." },
+          { text: "Weil nur Glück langweilig wäre", correct: false, explanation: "Pointiert, aber nicht der Kern – es geht um Entwicklung." }
         ]
       },
 
-      /* Demokratie (4) */
+      /* 🗳️ Demokratie (17–20) */
       { id: 17, category: "democracy", icon: "Handshake",
         question: "Wenn Menschen positive Emotionen erleben, sind sie in Diskussionen oft …",
         options: [
@@ -200,16 +201,16 @@
         question: "Wie kann Flow demokratisches Engagement stärken?",
         options: [
           { text: "Menschen erleben Freude, Sinn und Wirksamkeit beim Mitgestalten", correct: true, explanation: "Flow speist intrinsische Motivation und Ausdauer im Ehrenamt/Projekten." },
-          { text: "Menschen verlieren das Interesse an Politik", correct: false, explanation: "Das Gegenteil: Flow fördert Dranbleiben." },
-          { text: "Flow hat mit Gesellschaft nichts zu tun", correct: false, explanation: "Flow greift überall, auch im zivilen Engagement." }
+          { text: "Flow entsteht nur bei privaten Hobbys", correct: false, explanation: "Das Gegenteil: Flow kann auch im Engagement entstehen." },
+          { text: "Durch Flow wird Politik zum reinen Vergnügen ohne Anstrengung", correct: false, explanation: "Flow schließt Anstrengung nicht aus – er macht sie sinnvoll erlebbar." }
         ]
       },
       { id: 20, category: "democracy", icon: "Handshake",
         question: "Warum gehören gute Beziehungen (PERMA) auch zur Demokratie?",
         options: [
           { text: "Weil Vertrauen und Dialog den Zusammenhalt fördern", correct: true, explanation: "Beziehungsqualität stützt Respekt, Kooperation und Kompromissfähigkeit." },
-        { text: "Weil man nur mit Freunden wählen darf", correct: false, explanation: "Wahlen sind allgemein und frei – Beziehungen sind fürs Klima wichtig, nicht für Wahlrecht." },
-          { text: "Weil Streit verboten ist", correct: false, explanation: "Streit ist erlaubt – entscheidend ist respektvolle Streitkultur." }
+          { text: "Weil man nur mit Freunden wählen gehen darf", correct: false, explanation: "Wahlen sind allgemein und frei – Beziehungen sind fürs Klima wichtig, nicht für Wahlrecht." },
+          { text: "Weil Streiten verboten ist", correct: false, explanation: "Streit ist erlaubt – entscheidend ist respektvolle Streitkultur." }
         ]
       }
     ];
@@ -228,12 +229,11 @@
     function prepareQuestions() {
       questions = baseQuestions.map(q => ({
         ...q,
-        // Optionen pro Frage einmalig mischen
-        options: shuffleInPlace([...q.options])
+        options: shuffleInPlace([...q.options]) // Optionen pro Frage einmalig mischen
       }));
     }
 
-    /* ---------- Kategorienamen, Beschreibungen, Block-Grenzen ---------- */
+    /* ---------- Kategorienamen & Beschreibungen ---------- */
     const catName = {
       broaden: "Broaden & Build",
       flow: "Flow",
@@ -248,9 +248,9 @@
       perma: "Die 6 Säulen des Wohlbefindens",
       democracy: "Psychologische Grundlagen für Dialog & Beteiligung"
     };
-    const blockStarts = {
-      flow: 4, growth: 8, perma: 12, democracy: 16
-    };
+
+    /* ---------- Block-Grenzen (für Trenner & Bonus-Box) ---------- */
+    const blockStarts = { flow: 4, growth: 8, perma: 12, democracy: 16 };
 
     /* ---------- Feedback (mit Gleichstand-Logik) ---------- */
     function personalizedFeedback() {
@@ -274,7 +274,6 @@
       const minP = Math.min(...ps);
 
       if (maxP === minP) {
-        // Voller Gleichstand – nichts einzeln hervorheben
         msg += "Du warst in allen Bereichen gleich stark.";
       } else {
         const strongest = cats.reduce((a, b) => a.p > b.p ? a : b);
