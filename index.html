@@ -11,7 +11,7 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
-  <!-- Safelist für Tailwind-JIT, damit success/warn Klassen garantiert vorhanden sind -->
+  <!-- Safelist für Tailwind-JIT (für Zustandsklassen) -->
   <template id="tailwind-safelist">
     <span class="text-green-600 text-red-600 bg-green-100 bg-red-100 border-green-500 border-red-500"></span>
   </template>
@@ -27,7 +27,9 @@
       Zap: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
       Brain: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>`,
       TrendingUp: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>`,
-      Handshake: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12l3-3m0 0l3 3m-3-3v8M7 7h4a4 4 0 014 4v0M3 11l4-4m0 0l4 4m-4-4v10"></path></svg>`
+      Handshake: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12l3-3m0 0l3 3m-3-3v8M7 7h4a4 4 0 014 4v0M3 11l4-4m0 0l4 4m-4-4v10"></path></svg>`,
+      CheckCircle: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+      XCircle: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
     };
 
     /* ---------- State ---------- */
@@ -78,11 +80,11 @@
 
       /* --- Flow (4) --- */
       { id: 5, category: "flow", icon: "Zap",
-        question: "Du zeichnest, spielst Musik oder gamest – plötzlich vergeht die Zeit wie im Flug. Was passiert da?",
+        question: "Du zeichnest, machst Musik oder bist in Bewegung (z. B. Sport, Tanzen) – plötzlich vergeht die Zeit wie im Flug. Was passiert da?",
         options: [
-          { text: "Du bist im Flow", correct: true, explanation: "Tiefe Vertiefung bei Passung von Können & Herausforderung – typische Flow-Erfahrung." },
           { text: "Du bist abgelenkt", correct: false, explanation: "Ablenkung ist das Gegenteil: Flow ist hochfokussiert." },
-          { text: "Du bist gestresst", correct: false, explanation: "Flow geht mit positiver Aktivierung, nicht mit Distress einher." }
+          { text: "Du bist gestresst", correct: false, explanation: "Flow geht mit positiver Aktivierung, nicht mit Distress einher." },
+          { text: "Du bist im Flow", correct: true, explanation: "Tiefe Vertiefung bei Passung von Können & Herausforderung – typische Flow-Erfahrung." }
         ]
       },
       { id: 6, category: "flow", icon: "Zap",
@@ -106,7 +108,7 @@
         options: [
           { text: "Durch klares Ziel, Ruhe und volle Konzentration", correct: true, explanation: "Ziele, Fokus und Störungsfreiheit steigern die Flow-Wahrscheinlichkeit." },
           { text: "Durch Multitasking", correct: false, explanation: "Multitasking zerschießt Aufmerksamkeit und Flow." },
-          { text: "Durch häufige Pausen und Ablenkungen", correct: false, explanation: "Kurze Pausen ja – aber häufige Ablenkungen verhindern Flow." }
+          { text: "Durch häufige Ablenkungen", correct: false, explanation: "Kurze Pausen ja – aber häufige Ablenkungen verhindern Flow." }
         ]
       },
 
@@ -213,7 +215,7 @@
       }
     ];
 
-    /* ---------- Helper ---------- */
+    /* ---------- Kategorienamen & Beschreibungen ---------- */
     const catName = {
       broaden: "Broaden & Build",
       flow: "Flow",
@@ -229,6 +231,15 @@
       democracy: "Psychologische Grundlagen für Dialog & Beteiligung"
     };
 
+    /* ---------- Block-Grenzen (für Trenner & Bonus-Box) ---------- */
+    const blockStarts = {
+      flow: 4,       // Frageindex 4 (5. Frage)
+      growth: 8,     // Frageindex 8 (9. Frage)
+      perma: 12,     // Frageindex 12 (13. Frage)
+      democracy: 16  // Frageindex 16 (17. Frage)
+    };
+
+    /* ---------- Feedback ---------- */
     function personalizedFeedback() {
       const total = Object.values(state.scores).reduce((a, b) => a + b, 0);
       const pct = Math.round((total / questions.length) * 100);
@@ -266,9 +277,46 @@
       `;
     }
 
+    function categoryTrennerHTML(key) {
+      const title = catName[key];
+      const desc = catDesc[key];
+      return `
+        <div class="bg-gradient-to-r from-purple-100 to-blue-100 border border-purple-200 rounded-2xl p-6 mb-6 animate-fade-in">
+          <div class="flex items-center gap-3">
+            <div class="text-purple-700 font-semibold">🌈 Neues Thema</div>
+            <div class="h-px flex-1 bg-purple-300/60"></div>
+          </div>
+          <div class="mt-4">
+            <h3 class="text-xl font-bold text-gray-800">${title}</h3>
+            <p class="text-gray-700 mt-1">${desc}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function democracyBonusHTML() {
+      return `
+        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6 mb-6 animate-fade-in">
+          <div class="flex items-center gap-2 text-yellow-700 font-semibold">
+            🗳️ Bonus-Thema: Positive Psychologie & Demokratie
+          </div>
+          <p class="text-gray-800 mt-2">
+            Wie stärken positive Emotionen, Flow, Growth Mindset und Beziehungen unser Zusammenleben, Dialog & Beteiligung?
+          </p>
+        </div>
+      `;
+    }
+
     function viewQuestion() {
       const q = questions[state.currentQuestion];
       const progress = ((state.currentQuestion + 1) / questions.length) * 100;
+
+      // ggf. Trenner/Bonus-Box einblenden, wenn ein neuer Block beginnt
+      let intro = "";
+      if (state.currentQuestion === blockStarts.flow) intro = categoryTrennerHTML("flow");
+      if (state.currentQuestion === blockStarts.growth) intro = categoryTrennerHTML("growth");
+      if (state.currentQuestion === blockStarts.perma) intro = categoryTrennerHTML("perma");
+      if (state.currentQuestion === blockStarts.democracy) intro = democracyBonusHTML();
 
       const optionsHtml = q.options.map((opt, i) => {
         const isSelected = state.selectedAnswer === i;
@@ -323,6 +371,8 @@
                 <div class="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all duration-300" style="width:${progress}%"></div>
               </div>
             </div>
+
+            ${intro}
 
             <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10">
               <div class="flex items-center justify-center mb-6">
