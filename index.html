@@ -11,7 +11,6 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
-  <!-- Safelist für Tailwind-JIT (für Zustandsklassen) -->
   <template id="tailwind-safelist">
     <span class="text-green-600 text-red-600 bg-green-100 bg-red-100 border-green-500 border-red-500"></span>
   </template>
@@ -42,9 +41,9 @@
       quizComplete: false
     };
 
-    /* ---------- Fragen (20) ---------- */
-    const questions = [
-      /* --- Broaden & Build (4) --- */
+    /* ---------- Fragen (20) – Grunddaten (unverändert) ---------- */
+    const baseQuestions = [
+      /* Broaden & Build (4) */
       { id: 1, category: "broaden", icon: "Heart",
         question: "Du bist gut gelaunt, weil dir jemand ein Kompliment gemacht hat. Was passiert oft, wenn du dich so fühlst?",
         options: [
@@ -78,7 +77,7 @@
         ]
       },
 
-      /* --- Flow (4) --- */
+      /* Flow (4) – Frage 5 angepasst: Bewegung statt Gaming */
       { id: 5, category: "flow", icon: "Zap",
         question: "Du zeichnest, machst Musik oder bist in Bewegung (z. B. Sport, Tanzen) – plötzlich vergeht die Zeit wie im Flug. Was passiert da?",
         options: [
@@ -112,7 +111,7 @@
         ]
       },
 
-      /* --- Growth Mindset (4) --- */
+      /* Growth Mindset (4) */
       { id: 9, category: "growth", icon: "Brain",
         question: "Du bekommst eine schlechte Note. Was wäre eine Reaktion mit Growth Mindset?",
         options: [
@@ -146,7 +145,7 @@
         ]
       },
 
-      /* --- PERMA+H (4) --- */
+      /* PERMA+H (4) */
       { id: 13, category: "perma", icon: "TrendingUp",
         question: "Was trägt am meisten zu echtem Wohlbefinden bei?",
         options: [
@@ -180,7 +179,7 @@
         ]
       },
 
-      /* --- Demokratie (4) --- */
+      /* Demokratie (4) */
       { id: 17, category: "democracy", icon: "Handshake",
         question: "Wenn Menschen positive Emotionen erleben, sind sie in Diskussionen oft …",
         options: [
@@ -209,13 +208,32 @@
         question: "Warum gehören gute Beziehungen (PERMA) auch zur Demokratie?",
         options: [
           { text: "Weil Vertrauen und Dialog den Zusammenhalt fördern", correct: true, explanation: "Beziehungsqualität stützt Respekt, Kooperation und Kompromissfähigkeit." },
-          { text: "Weil man nur mit Freunden wählen darf", correct: false, explanation: "Wahlen sind allgemein und frei – Beziehungen sind fürs Klima wichtig, nicht für Wahlrecht." },
+        { text: "Weil man nur mit Freunden wählen darf", correct: false, explanation: "Wahlen sind allgemein und frei – Beziehungen sind fürs Klima wichtig, nicht für Wahlrecht." },
           { text: "Weil Streit verboten ist", correct: false, explanation: "Streit ist erlaubt – entscheidend ist respektvolle Streitkultur." }
         ]
       }
     ];
 
-    /* ---------- Kategorienamen & Beschreibungen ---------- */
+    /* ---------- Arbeitskopie + Option-Shuffle ---------- */
+    let questions = []; // wird bei Start gefüllt (mit gemischten Optionen)
+
+    function shuffleInPlace(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function prepareQuestions() {
+      questions = baseQuestions.map(q => ({
+        ...q,
+        // Optionen pro Frage einmalig mischen
+        options: shuffleInPlace([...q.options])
+      }));
+    }
+
+    /* ---------- Kategorienamen, Beschreibungen, Block-Grenzen ---------- */
     const catName = {
       broaden: "Broaden & Build",
       flow: "Flow",
@@ -230,19 +248,16 @@
       perma: "Die 6 Säulen des Wohlbefindens",
       democracy: "Psychologische Grundlagen für Dialog & Beteiligung"
     };
-
-    /* ---------- Block-Grenzen (für Trenner & Bonus-Box) ---------- */
     const blockStarts = {
-      flow: 4,       // Frageindex 4 (5. Frage)
-      growth: 8,     // Frageindex 8 (9. Frage)
-      perma: 12,     // Frageindex 12 (13. Frage)
-      democracy: 16  // Frageindex 16 (17. Frage)
+      flow: 4, growth: 8, perma: 12, democracy: 16
     };
 
-    /* ---------- Feedback ---------- */
+    /* ---------- Feedback (mit Gleichstand-Logik) ---------- */
     function personalizedFeedback() {
-      const total = Object.values(state.scores).reduce((a, b) => a + b, 0);
+      const totals = Object.values(state.scores);
+      const total = totals.reduce((a, b) => a + b, 0);
       const pct = Math.round((total / questions.length) * 100);
+
       let msg =
         pct >= 80 ? "Wow! 🌟 Du hast Positive Psychologie super drauf. " :
         pct >= 60 ? "Gut gemacht! 👏 Du kennst dich schon gut aus. " :
@@ -251,18 +266,28 @@
 
       const cats = Object.entries(state.scores).map(([c, s]) => {
         const max = questions.filter(q => q.category === c).length;
-        return { c, s, max, p: (s / max) * 100 };
+        return { c, s, max, p: max ? (s / max) * 100 : 0 };
       });
-      const strongest = cats.reduce((a, b) => a.p > b.p ? a : b);
-      const weakest = cats.reduce((a, b) => a.p < b.p ? a : b);
 
-      if (strongest.p > 0) msg += `Stark bei: ${catName[strongest.c]}. `;
-      if (weakest.p < strongest.p && weakest.p < 75) msg += `Bei ${catName[weakest.c]} kannst du noch nachschärfen.`;
+      const ps = cats.map(x => x.p);
+      const maxP = Math.max(...ps);
+      const minP = Math.min(...ps);
 
+      if (maxP === minP) {
+        // Voller Gleichstand – nichts einzeln hervorheben
+        msg += "Du warst in allen Bereichen gleich stark.";
+      } else {
+        const strongest = cats.reduce((a, b) => a.p > b.p ? a : b);
+        const weakest = cats.reduce((a, b) => a.p < b.p ? a : b);
+        if (strongest.p > 0) msg += `Stark bei: ${catName[strongest.c]}. `;
+        if (weakest.p < strongest.p && weakest.p < 75) {
+          msg += `Bei ${catName[weakest.c]} kannst du noch nachschärfen.`;
+        }
+      }
       return msg;
     }
 
-    /* ---------- Views ---------- */
+    /* ---------- UI: Start ---------- */
     function viewStart() {
       return `
         <div class="min-h-screen flex flex-col items-center justify-center text-center p-8">
@@ -277,9 +302,8 @@
       `;
     }
 
+    /* ---------- Trenner & Bonus ---------- */
     function categoryTrennerHTML(key) {
-      const title = catName[key];
-      const desc = catDesc[key];
       return `
         <div class="bg-gradient-to-r from-purple-100 to-blue-100 border border-purple-200 rounded-2xl p-6 mb-6 animate-fade-in">
           <div class="flex items-center gap-3">
@@ -287,13 +311,12 @@
             <div class="h-px flex-1 bg-purple-300/60"></div>
           </div>
           <div class="mt-4">
-            <h3 class="text-xl font-bold text-gray-800">${title}</h3>
-            <p class="text-gray-700 mt-1">${desc}</p>
+            <h3 class="text-xl font-bold text-gray-800">${catName[key]}</h3>
+            <p class="text-gray-700 mt-1">${catDesc[key]}</p>
           </div>
         </div>
       `;
     }
-
     function democracyBonusHTML() {
       return `
         <div class="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6 mb-6 animate-fade-in">
@@ -307,11 +330,11 @@
       `;
     }
 
+    /* ---------- Frage-View ---------- */
     function viewQuestion() {
       const q = questions[state.currentQuestion];
       const progress = ((state.currentQuestion + 1) / questions.length) * 100;
 
-      // ggf. Trenner/Bonus-Box einblenden, wenn ein neuer Block beginnt
       let intro = "";
       if (state.currentQuestion === blockStarts.flow) intro = categoryTrennerHTML("flow");
       if (state.currentQuestion === blockStarts.growth) intro = categoryTrennerHTML("growth");
@@ -395,6 +418,7 @@
       `;
     }
 
+    /* ---------- Ergebnis ---------- */
     function viewResults() {
       const total = Object.values(state.scores).reduce((a, b) => a + b, 0);
       const pct = Math.round((total / questions.length) * 100);
@@ -464,7 +488,7 @@
       }
     }
 
-    /* ---------- Event Delegation ---------- */
+    /* ---------- Events ---------- */
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -472,6 +496,7 @@
       const action = btn.getAttribute('data-action');
 
       if (action === 'start') {
+        prepareQuestions(); // Optionen pro Frage mischen
         state.started = true;
         render();
         return;
